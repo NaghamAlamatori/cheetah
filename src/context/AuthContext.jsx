@@ -18,11 +18,18 @@ export const AuthProvider = ({ children }) => {
         if (!mounted) return;
         
         if (error) throw error;
-        setUser(session?.user ?? null);
+        
+        // Additional verification
+        if (session?.user) {
+          const { data: { user } } = await supabase.auth.getUser();
+          setUser(user ?? null);
+        } else {
+          setUser(null);
+        }
       } catch (error) {
         if (!mounted) return;
-        console.error("Error getting session:", error.message);
-        setAuthError(error.message);
+        console.error("Session error:", error);
+        setAuthError("Session verification failed");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -45,6 +52,9 @@ export const AuthProvider = ({ children }) => {
           case "PASSWORD_RECOVERY":
             toast.success("Password recovery initiated");
             break;
+          case "USER_UPDATED":
+            toast.success("User information updated");
+            break;
         }
       }
     );
@@ -63,12 +73,26 @@ export const AuthProvider = ({ children }) => {
         email,
         password,
       });
-      if (error) throw error;
+
+      if (error) {
+        if (error.message.includes("Invalid login credentials")) {
+          throw new Error("Invalid email or password. Please try again.");
+        } else if (error.message.includes("Email not confirmed")) {
+          throw new Error("Please verify your email before logging in.");
+        }
+        throw error;
+      }
+
+      // Verify the session was actually created
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Session creation failed");
+      
       return data;
     } catch (error) {
-      console.error("Login error:", error.message);
-      setAuthError(error.message);
-      toast.error(error.message);
+      console.error("Login error:", error);
+      const friendlyError = error.message || "Login failed. Please try again.";
+      setAuthError(friendlyError);
+      toast.error(friendlyError);
       throw error;
     } finally {
       setLoading(false);
@@ -83,17 +107,35 @@ export const AuthProvider = ({ children }) => {
         email,
         password,
         options: {
-          data: userMetadata,
+          data: {
+            ...userMetadata,
+            role: 'user'
+          },
           emailRedirectTo: `${window.location.origin}/profile`
         }
       });
+
       if (error) throw error;
-      toast.success("Account created! Please check your email for confirmation.");
+
+      // Check if email confirmation is required
+      if (data.user?.identities?.length === 0) {
+        throw new Error("User already registered");
+      }
+
+      if (data.user?.confirmation_sent) {
+        toast.success("Confirmation email sent! Please verify your email.");
+      } else {
+        toast.success("Account created successfully!");
+      }
+      
       return data;
     } catch (error) {
-      console.error("Signup error:", error.message);
-      setAuthError(error.message);
-      toast.error(error.message);
+      console.error("Signup error:", error);
+      const friendlyError = error.message.includes("already registered") 
+        ? "This email is already registered" 
+        : "Signup failed. Please try again.";
+      setAuthError(friendlyError);
+      toast.error(friendlyError);
       throw error;
     } finally {
       setLoading(false);
@@ -105,6 +147,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      setUser(null);
     } catch (error) {
       console.error("Logout error:", error.message);
       setAuthError(error.message);
@@ -138,6 +181,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data, error } = await supabase.auth.updateUser(updates);
       if (error) throw error;
+      setUser({ ...user, ...updates });
       toast.success("Profile updated successfully");
       return data;
     } catch (error) {
@@ -165,7 +209,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

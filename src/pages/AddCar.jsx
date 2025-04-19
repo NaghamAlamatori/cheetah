@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import  supabase  from "../utils/supabase"; 
-import { useAuth } from "../context/AuthContext"; 
+import supabase from "../utils/supabase";
+import { useAuth } from "../context/AuthContext";
 
 function AddCar() {
-  const { user } = useAuth(); //auth context to check if the user is logged in
+  const { user } = useAuth();
   const navigate = useNavigate();
 
-  // State for the car details and images
   const [carDetails, setCarDetails] = useState({
     brand: "",
     model: "",
@@ -18,51 +17,57 @@ function AddCar() {
     country: "",
     city: "",
   });
-  const [images, setImages] = useState([null, null, null]); // To store 3 images
+
+  const [images, setImages] = useState([null, null, null]);
+  const [previews, setPreviews] = useState(["", "", ""]);
   const [loading, setLoading] = useState(false);
 
-  // Handle form field change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setCarDetails((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    setCarDetails((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle image upload
   const handleImageChange = (e, index) => {
     const file = e.target.files[0];
     if (file) {
-      setImages((prevImages) => {
-        const updatedImages = [...prevImages];
-        updatedImages[index] = file;
-        return updatedImages;
-      });
+      const updatedImages = [...images];
+      updatedImages[index] = file;
+      setImages(updatedImages);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const updatedPreviews = [...previews];
+        updatedPreviews[index] = reader.result;
+        setPreviews(updatedPreviews);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  // Function to upload images to Supabase Storage
   const uploadImages = async () => {
     const uploadedUrls = [];
+
     for (let i = 0; i < images.length; i++) {
       if (images[i]) {
+        const filename = `car_${user.id}_${Date.now()}_${i}`;
         const { data, error } = await supabase.storage
-          .from("car-images") // Replace with your Supabase storage bucket name
-          .upload(`car_${user.id}_${Date.now()}_${i}`, images[i]);
+          .from("car-images")
+          .upload(filename, images[i]);
 
         if (error) {
           console.error("Error uploading image:", error);
+          alert("Image upload failed.");
           return null;
         }
 
-        uploadedUrls.push(data.Key);
+        const publicUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/car-images/${data.path}`;
+        uploadedUrls.push(publicUrl);
       }
     }
+
     return uploadedUrls;
   };
 
-  // Handle the form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -72,143 +77,94 @@ function AddCar() {
     }
 
     setLoading(true);
-    
+
     const imageUrls = await uploadImages();
     if (!imageUrls) {
       setLoading(false);
       return;
     }
 
-    const { error } = await supabase
-      .from("cars")
-      .insert([
-        {
-          user_id: user.id,
-          brand: carDetails.brand,
-          model: carDetails.model,
-          year: carDetails.year,
-          price: carDetails.price,
-          description: carDetails.description,
-          color: carDetails.color,
-          country: carDetails.country,
-          city: carDetails.city,
-          car_images: imageUrls, // Store the image URLs
-          sold: false, // Default value, change if needed
-        },
-      ]);
+    const { error } = await supabase.from("cars").insert([
+      {
+        user_id: user.id,
+        ...carDetails,
+        car_images: imageUrls,
+        sold: false,
+      },
+    ]);
 
     if (error) {
       console.error("Error adding car:", error);
+      alert("Failed to add car. Please try again.");
     } else {
       alert("Car added successfully!");
-      navigate("/"); // Redirect to homepage or any other page
+      navigate("/cars");
     }
 
     setLoading(false);
   };
 
-  if (!user) {
-    return <p>Please log in to add a car.</p>;
-  }
+  if (!user) return <p className="text-center mt-10 text-lg font-semibold">Please log in to add a car.</p>;
 
   return (
-    <div className="add-car-container">
-      <h2>Add Your Car</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Brand</label>
-          <input
-            type="text"
-            name="brand"
-            value={carDetails.brand}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Model</label>
-          <input
-            type="text"
-            name="model"
-            value={carDetails.model}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Year</label>
-          <input
-            type="number"
-            name="year"
-            value={carDetails.year}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Price</label>
-          <input
-            type="number"
-            name="price"
-            value={carDetails.price}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Description</label>
-          <textarea
-            name="description"
-            value={carDetails.description}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Color</label>
-          <input
-            type="text"
-            name="color"
-            value={carDetails.color}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Country</label>
-          <input
-            type="text"
-            name="country"
-            value={carDetails.country}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>City</label>
-          <input
-            type="text"
-            name="city"
-            value={carDetails.city}
-            onChange={handleChange}
-            required
-          />
-        </div>
+    <div className="max-w-3xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 shadow-lg rounded-2xl">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">🚗 Add Your Car</h2>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {["brand", "model", "year", "price", "description", "color", "country", "city"].map((field) => (
+          <div key={field}>
+            <label className="block mb-1 font-medium capitalize text-gray-700 dark:text-gray-200">
+              {field}
+            </label>
+            {field === "description" ? (
+              <textarea
+                name={field}
+                value={carDetails[field]}
+                onChange={handleChange}
+                required
+                className="w-full p-3 rounded-lg border dark:bg-gray-700 dark:text-white dark:border-gray-600"
+              />
+            ) : (
+              <input
+                type={field === "year" || field === "price" ? "number" : "text"}
+                name={field}
+                value={carDetails[field]}
+                onChange={handleChange}
+                required
+                className="w-full p-3 rounded-lg border dark:bg-gray-700 dark:text-white dark:border-gray-600"
+              />
+            )}
+          </div>
+        ))}
 
         <div>
-          <label>Upload Images (Max 3)</label>
-          {[0, 1, 2].map((index) => (
-            <input
-              key={index}
-              type="file"
-              onChange={(e) => handleImageChange(e, index)}
-              accept="image/*"
-              required
-            />
-          ))}
+          <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">Upload Images (Max 3)</label>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[0, 1, 2].map((index) => (
+              <div key={index} className="flex flex-col items-center">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageChange(e, index)}
+                  required
+                  className="text-sm text-gray-600 dark:text-gray-300"
+                />
+                {previews[index] && (
+                  <img
+                    src={previews[index]}
+                    alt={`Preview ${index}`}
+                    className="w-28 h-20 mt-2 object-cover rounded-lg border"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
-        <button type="submit" disabled={loading}>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition duration-200"
+        >
           {loading ? "Submitting..." : "Add Car"}
         </button>
       </form>

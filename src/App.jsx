@@ -26,8 +26,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/cars" element={<Cars />} />
+            <Route path="/cars/add" element={<ProtectedRoute><AddCar /></ProtectedRoute>} />
             <Route path="/cars/:id" element={<CarDetails />} />
-            <Route path="/add-car" element={<ProtectedRoute><AddCar /></ProtectedRoute>} />
             <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
             <Route path="/complaints" element={<Complaints />} />
             <Route path="/reviews" element={<Reviews />} />
