@@ -32,10 +32,8 @@ frontend/
 
 ✅ **Home Page** – Rotating images, search bar, featured cars.
 ✅ **Cars Page** – Browse and filter available cars.
-✅ **Chat Page** – Real-time messaging between buyers & sellers.
 ✅ **Complaints Page** – Users can file and view complaints.
 ✅ **Authentication** – Login & Signup with authentication.
-✅ **Profile Page** – Seller profile management.
 ✅ **Reviews System** – User feedback and ratings.
 ✅ **Bilingual Support** – Arabic & English language switcher.
 ✅ **Sleek UI** – Professional orange & black theme.
@@ -44,8 +42,8 @@ frontend/
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/your-repo/car-marketplace-frontend.git
-   cd car-marketplace-frontend
+   git clone https://github.com/NaghamAlamatori/cheetah
+
    ```
 2. **Install Dependencies:**
    ```bash
@@ -65,7 +63,6 @@ frontend/
 ## 📜 Tech Stack
 
 - **Frontend:** React.js, Vite
-- **Backend:** Node.js, Express
 - **State Management:** Context API
 - **Authentication & Database:** Supabase
 - **Styling:** CSS Modules / Tailwind CSS
