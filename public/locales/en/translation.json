@@ -1,0 +1,110 @@
+{
+  "home": "Home",
+ 
+  "cars": {
+    "title": "Browse Cars",
+    "searchPlaceholder": "Search by model...",
+    "minPrice": "Min Price",
+    "maxPrice": "Max Price",
+    "location": "Location",
+    "noCarsFound": "No cars found matching your criteria",
+    "new": "New",
+    "currency": "USD"
+  },
+ 
+  "chat": "Chat",
+  "login": "Login",
+  "signup": "Sign Up",
+  "profile": "Profile",
+  "reviews": "Reviews",
+  "language": "العربية",
+  "welcome": "Welcome",
+  "search": "Search Cars...",
+  "email": "Email",
+  "password": "Password",
+  "noAccount": "Don't have an account?",
+  "logout": "Logout",
+  "haveAccount": "Don't have an account?",
+  "pleaseLogin": "Please login to view your profile",
+  "footer": {
+    "tagline": "Your trusted platform for buying and selling cars",
+    "rights": "All rights reserved"
+  },
+  "about": {
+    "title": "About Us",
+    "content1": "Cheetah is your ultimate destination for buying and selling cars easily, quickly, and securely.",
+    "content2": "Our platform connects car sellers with potential buyers through a user-friendly and intuitive interface.",
+    "content3": "With features like image galleries, reviews, and multi-language support, Cheetah makes car trading more accessible to everyone.",
+    "content4": "Whether you're a private seller or a dealership, we provide tools to help you showcase your vehicles and reach more customers."
+  },
+  "contact": {
+    "title": "Contact Us",
+    "name": "Your Name",
+    "email": "Your Email",
+    "message": "Your Message",
+    "submit": "Send Message",
+    "successMessage": "Thank you! We'll get back to you soon."
+  },
+  "addCar": {
+    "title": "Add New Car",
+    "make": "Make",
+    "model": "Model",
+    "year": "Year",
+    "price": "Price",
+    "mileage": "Mileage",
+    "location": "Location",
+    "description": "Description",
+    "image_url": "Image URL",
+    "submit": "Add Car",
+    "submitting": "Adding..."
+  },
+  "carDetails": {
+    "car": "Car",
+    "year": "Year",
+    "mileage": "Mileage",
+    "location": "Location",
+    "description": "Description",
+    "contactSeller": "Contact Seller",
+    "viewDetails": "View Details"
+  },
+  "loading": "Loading...",
+  "errors": {
+    "fetchCars": "Error loading cars. Please try again later."
+  },
+  "complaints": {
+    "title": "Complaints",
+    "name": "Full Name",
+    "phone": "Phone Number",
+    "content": "Complaint Details",
+    "public": "Make this complaint public",
+    "submit": "Submit",
+    "thankYou": "Thank you! Your complaint has been submitted."
+  },
+  "socialMedia": {
+    "followUs": "Follow us on",
+    "messageUs": "Message us on",
+    "connectOn": "Connect with us on",
+    "facebook": "Facebook",
+    "whatsapp": "WhatsApp",
+    "instagram": "Instagram"
+  },
+    "carousel": {
+      "luxury": {
+        "title": "Luxury Cars",
+        "description": "Find your dream luxury vehicle"
+      },
+      "sports": {
+        "title": "Sports Cars",
+        "description": "Experience pure performance"
+      },
+      "classic": {
+        "title": "Classic Cars",
+        "description": "Timeless automotive legends"
+      }
+    },
+    "adBanner": {
+      "title": "Special Offer!",
+      "description": "Get exclusive deals on premium vehicles. Limited time offer."
+    }
+
+}
