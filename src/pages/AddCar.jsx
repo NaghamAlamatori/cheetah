@@ -1,11 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import supabase from "../utils/supabase";
-import { useAuth } from "../context/AuthContext";
+import { supabase } from "../utils/supabase";
 
 function AddCar() {
-  const { user } = useAuth();
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if user is logged in using the new auth methods
+    const getSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        
+        if (session) {
+          setUser(session.user);
+        }
+      } catch (error) {
+        console.error('Error getting session:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    getSession();
+    
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        setUser(session.user);
+      } else {
+        setUser(null);
+      }
+    });
+    
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+    };
+  }, []);
 
   const [carDetails, setCarDetails] = useState({
     brand: "",
@@ -20,7 +55,7 @@ function AddCar() {
 
   const [images, setImages] = useState([null, null, null]);
   const [previews, setPreviews] = useState(["", "", ""]);
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -76,11 +111,11 @@ function AddCar() {
       return;
     }
 
-    setLoading(true);
+    setSubmitting(true);
 
     const imageUrls = await uploadImages();
     if (!imageUrls) {
-      setLoading(false);
+      setSubmitting(false);
       return;
     }
 
@@ -104,55 +139,74 @@ function AddCar() {
     setLoading(false);
   };
 
-  if (!user) return <p className="text-center mt-10 text-lg font-semibold">Please log in to add a car.</p>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <p className="text-center mt-10 text-lg font-semibold">
+        Please log in to add a car.
+      </p>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 shadow-lg rounded-2xl">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">🚗 Add Your Car</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
+        🚗 Add Your Car
+      </h2>
       <form onSubmit={handleSubmit} className="space-y-6">
-        {["brand", "model", "year", "price", "description", "color", "country", "city"].map((field) => (
-          <div key={field}>
-            <label className="block mb-1 font-medium capitalize text-gray-700 dark:text-gray-200">
-              {field}
-            </label>
-            {field === "description" ? (
-              <textarea
-                name={field}
-                value={carDetails[field]}
-                onChange={handleChange}
-                required
-                className="w-full p-3 rounded-lg border dark:bg-gray-700 dark:text-white dark:border-gray-600"
-              />
-            ) : (
-              <input
-                type={field === "year" || field === "price" ? "number" : "text"}
-                name={field}
-                value={carDetails[field]}
-                onChange={handleChange}
-                required
-                className="w-full p-3 rounded-lg border dark:bg-gray-700 dark:text-white dark:border-gray-600"
-              />
-            )}
-          </div>
-        ))}
+        {["brand", "model", "year", "price", "description", "color", "country", "city"].map(
+          (field) => (
+            <div key={field}>
+              <label className="block mb-1 font-medium capitalize text-gray-700 dark:text-gray-200">
+                {field}
+              </label>
+              {field === "description" ? (
+                <textarea
+                  name={field}
+                  value={carDetails[field]}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-3 rounded-lg border dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                />
+              ) : (
+                <input
+                  type={field === "year" || field === "price" ? "number" : "text"}
+                  name={field}
+                  value={carDetails[field]}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-3 rounded-lg border dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                />
+              )}
+            </div>
+          )
+        )}
 
         <div>
-          <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">Upload Images (Max 3)</label>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <label className="block mb-2 font-medium text-gray-700 dark:text-gray-200">
+            Upload up to 3 images
+          </label>
+          <div className="flex gap-4">
             {[0, 1, 2].map((index) => (
               <div key={index} className="flex flex-col items-center">
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleImageChange(e, index)}
-                  required
-                  className="text-sm text-gray-600 dark:text-gray-300"
+                  className="block text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:border file:rounded-md file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
                 />
                 {previews[index] && (
                   <img
                     src={previews[index]}
-                    alt={`Preview ${index}`}
-                    className="w-28 h-20 mt-2 object-cover rounded-lg border"
+                    alt={`Preview ${index + 1}`}
+                    className="mt-2 w-24 h-24 object-cover rounded"
                   />
                 )}
               </div>
@@ -162,10 +216,10 @@ function AddCar() {
 
         <button
           type="submit"
-          disabled={loading}
-          className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition duration-200"
+          disabled={submitting}
+          className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-colors"
         >
-          {loading ? "Submitting..." : "Add Car"}
+          {submitting ? "Submitting..." : "Add Car"}
         </button>
       </form>
     </div>

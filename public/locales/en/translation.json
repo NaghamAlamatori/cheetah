@@ -7,11 +7,81 @@
     "minPrice": "Min Price",
     "maxPrice": "Max Price",
     "location": "Location",
-    "noCarsFound": "No cars found matching your criteria",
+    "noCarsFound": "No cars found",
     "new": "New",
     "currency": "USD"
   },
  
+  "carDetails": {
+    "title": "Car Details",
+    "back": "Back to Cars",
+    "noImage": "No image available",
+    "year": "Year",
+    "type": "Type",
+    "description": "Description",
+    "noDescription": "No description provided.",
+    "contactSeller": "Contact Seller",
+    "addToFavorites": "Add to Favorites",
+    "submitInquiry": "Submit Your Inquiry",
+    "name": "Name",
+    "phoneNumber": "Phone Number",
+    "comment": "Comment",
+    "submit": "Submit",
+    "submitReview": "Submit Review",
+    "viewDetails": "View Details",
+    "sold": "Sold",
+    "currency": "USD",
+    "color": "Color",
+    "locationUnknown": "Location not specified",
+    "safetyTips": {
+      "title": "Safety Tips",
+      "tips": [
+        "Meet in a public place",
+        "Inspect the car thoroughly before making any payments",
+        "Never send money in advance",
+        "Trust your instincts"
+      ]
+    }
+  },
+  "sellerInfo": {
+    "title": "Seller Information",
+    "back": "Back to Car Details",
+    "carDetails": "Car Details",
+    "sellerName": "Seller Name",
+    "notSpecified": "Not specified",
+    "email": "Email",
+    "location": "Location"
+  },
+  "ads": {
+    "title": "Advertisements",
+    "submit": "Submit Ad",
+    "adTitle": "Advertisement Title",
+    "detail": "Detail",
+    "image": "Image",
+    "link": "Link",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "status": "Status",
+    "manage": "Manage Advertisements",
+    "create": "Create New Ad",
+    "advertiser": "Advertiser",
+    "dates": "Duration",
+    "activate": "Activate Ad",
+    "deactivate": "Deactivate Ad",
+    "statusUpdated": "Ad status updated successfully",
+    "deleted": "Ad deleted successfully",
+    "confirmDelete": "Are you sure you want to delete this ad?",
+    "noAds": "No ads available at the moment",
+    "submitSuccess": "Ad submitted successfully!",
+    "submitError": "Failed to submit ad. Please try again later.",
+    "draft": "Draft",
+    "publish": "Publish"
+  },
+  "common": {
+    "actions": "Actions",
+    "delete": "Delete",
+    "unknown": "Unknown"
+  },
   "chat": "Chat",
   "login": "Login",
   "signup": "Sign Up",
@@ -45,6 +115,40 @@
     "submit": "Send Message",
     "successMessage": "Thank you! We'll get back to you soon."
   },
+  "admin": {
+    "panel": "Admin Panel",
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "cars": "Cars",
+    "reviews": "Reviews",
+    "complaints": "Complaints",
+    "ads": "Ads",
+    "settings": "Settings",
+    "totalUsers": "Total Users",
+    "totalCars": "Total Cars",
+    "totalReviews": "Total Reviews",
+    "pendingComplaints": "Pending Complaints",
+    "quickActions": "Quick Actions",
+    "addNewUser": "Add New User",
+    "verifyCars": "Verify Cars",
+    "moderateReviews": "Moderate Reviews",
+    "siteSettings": "Site Settings",
+    "manageUsers": "Manage Users",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "actions": "Actions",
+    "noName": "No Name",
+    "noPhone": "No Phone",
+    "deleteUser": "Delete User",
+    "confirmDeleteUser": "Are you sure you want to delete this user? This action cannot be undone.",
+    "userDeleted": "User deleted successfully",
+    "userRoleUpdated": "User role updated successfully",
+    "roles": {
+      "user": "User",
+      "admin": "Administrator"
+    }
+  },
   "addCar": {
     "title": "Add New Car",
     "make": "Make",
@@ -58,27 +162,39 @@
     "submit": "Add Car",
     "submitting": "Adding..."
   },
-  "carDetails": {
-    "car": "Car",
-    "year": "Year",
-    "mileage": "Mileage",
-    "location": "Location",
-    "description": "Description",
-    "contactSeller": "Contact Seller",
-    "viewDetails": "View Details"
-  },
-  "loading": "Loading...",
+  "loading": "Loading",
   "errors": {
-    "fetchCars": "Error loading cars. Please try again later."
+    "fetchCars": "Error loading cars. Please try again later.",
+    "fetchUsers": "Failed to load users. Please try again.",
+    "updateRole": "Failed to update user role. Please try again.",
+    "deleteUser": "Failed to delete user. Please try again.",
+    "requiredFields": "Please fill all required fields",
+    "submitComplaint": "Failed to submit complaint. Please try again later.",
+    "fetchComplaints": "Failed to fetch complaints. Please try again later.",
+    "updateStatus": "Failed to update complaint status. Please try again later.",
+    "messageTooLong": "Your message is too long. Please keep it under 500 characters.",
+    "unauthorized": "Unable to submit complaint. Please try again later.",
+    "fetchFailed": "Error fetching data. Please try again.",
+    "updateFailed": "Error updating data. Please try again.",
+    "deleteFailed": "Error deleting data. Please try again.",
+    "notAuthenticated": "Please login to continue"
   },
   "complaints": {
-    "title": "Complaints",
-    "name": "Full Name",
+    "title": "Submit a Complaint",
+    "publicTitle": "Public Complaints",
+    "name": "Your Name",
     "phone": "Phone Number",
-    "content": "Complaint Details",
-    "public": "Make this complaint public",
-    "submit": "Submit",
-    "thankYou": "Thank you! Your complaint has been submitted."
+    "content": "Your Complaint",
+    "contentPlaceholder": "Please describe your complaint in detail...",
+    "submit": "Submit Complaint",
+    "noComplaints": "No public complaints available",
+    "characters": "characters",
+    "disclaimer": "Please keep your complaint concise and respectful. Maximum 500 characters."
+  },
+  "success": {
+    "submitted": "Your complaint has been submitted successfully!",
+    "accepted": "Complaint accepted successfully!",
+    "rejected": "Complaint rejected successfully!"
   },
   "socialMedia": {
     "followUs": "Follow us on",
@@ -88,23 +204,44 @@
     "whatsapp": "WhatsApp",
     "instagram": "Instagram"
   },
-    "carousel": {
-      "luxury": {
-        "title": "Luxury Cars",
-        "description": "Find your dream luxury vehicle"
-      },
-      "sports": {
-        "title": "Sports Cars",
-        "description": "Experience pure performance"
-      },
-      "classic": {
-        "title": "Classic Cars",
-        "description": "Timeless automotive legends"
-      }
+  "carousel": {
+    "luxury": {
+      "title": "Luxury Cars",
+      "description": "Find your dream luxury vehicle"
     },
-    "adBanner": {
-      "title": "Special Offer!",
-      "description": "Get exclusive deals on premium vehicles. Limited time offer."
+    "sports": {
+      "title": "Sports Cars",
+      "description": "Experience pure performance"
+    },
+    "classic": {
+      "title": "Classic Cars",
+      "description": "Timeless automotive legends"
     }
-
+  },
+  "adBanner": {
+    "title": "Special Offer!",
+    "description": "Get exclusive deals on premium vehicles. Limited time offer."
+  },
+  "dashboard": "Dashboard",
+  "users": "Users",
+  "ads": "Ads",
+  "settings": "Settings",
+  "manage_users": "Manage Users",
+  "manage_reviews": "Manage Reviews",
+  "manage_complaints": "Manage Complaints",
+  "manage_ads": "Manage Ads",
+  "manage_cars": "Manage Cars",
+  "site_settings": "Site Settings",
+  "approve": "Approve",
+  "reject": "Reject",
+  "delete": "Delete",
+  "feature": "Feature",
+  "unfeature": "Unfeature",
+  "make_admin": "Make Admin",
+  "make_user": "Make User",
+  "save_settings": "Save Settings",
+  "site_name": "Site Name",
+  "admin_panel": "Admin Panel",
+  "layout": "Layout",
+  "browseMoreCars": "Browse More Cars"
 }

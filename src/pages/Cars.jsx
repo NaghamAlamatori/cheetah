@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import supabase from "../utils/supabase";
+import { supabase } from '../utils/supabase';
 import CarCard from "../components/CarCard";
 import { useTranslation } from "react-i18next";
 
@@ -14,73 +14,108 @@ const Cars = () => {
   });
   const { t, i18n } = useTranslation();
 
-  const demoCars = [
-    {
-      id: "demo1",
-      make: "Mercedes-Benz",
-      model: "S-Class",
-      price: "89999",
-      location: "New York",
-      image_url:
-        "https://images.unsplash.com/photo-1622200294772-e411743c0e07?auto=format&fit=crop&w=1024&q=80",
-    },
-    {
-      id: "demo2",
-      make: "BMW",
-      model: "7 Series",
-      price: "92999",
-      location: "Los Angeles",
-      image_url:
-        "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1024&q=80",
-    },
-    {
-      id: "demo3",
-      make: "Audi",
-      model: "A8",
-      price: "86999",
-      location: "Chicago",
-      image_url:
-        "https://images.unsplash.com/photo-1616422285623-13ff0162193c?auto=format&fit=crop&w=1024&q=80",
-    },
-  ];
-
   useEffect(() => {
     const fetchCars = async () => {
       try {
         setLoading(true);
+        
+        // Start with the base query
         let query = supabase.from("cars").select("*");
 
-        if (searchTerm) {
-          query = query.or(`brand.ilike.%${searchTerm}%,model.ilike.%${searchTerm}%`);
+        // Apply search filter - search in brand, model, and description
+        if (searchTerm.trim()) {
+          query = query.or(
+            `brand.ilike.%${searchTerm.trim()}%,` +
+            `model.ilike.%${searchTerm.trim()}%,` +
+            `description.ilike.%${searchTerm.trim()}%`
+          );
         }
 
-        if (filters.minPrice) {
-          query = query.gte("price", filters.minPrice);
+        // Apply price filters - convert to numbers and validate
+        const minPrice = Number(filters.minPrice);
+        const maxPrice = Number(filters.maxPrice);
+
+        if (!isNaN(minPrice) && minPrice > 0) {
+          query = query.gte('price', minPrice);
         }
 
-        if (filters.maxPrice) {
-          query = query.lte("price", filters.maxPrice);
+        if (!isNaN(maxPrice) && maxPrice > 0) {
+          query = query.lte('price', maxPrice);
         }
 
-        if (filters.location) {
-          query = query.or(`country.ilike.%${filters.location}%,city.ilike.%${filters.location}%`);
+        // Apply location filter
+        if (filters.location.trim()) {
+          const locationTerm = filters.location.trim();
+          query = query.or(
+            `country.ilike.%${locationTerm}%,` +
+            `city.ilike.%${locationTerm}%`
+          );
         }
+
+        // Order by newest first
+        query = query.order('created_at', { ascending: false });
 
         const { data, error } = await query;
 
         if (error) throw error;
 
-        setCars(data || []);
+        // Process cars to get image URLs
+        const processedCars = data.map(car => {
+          let imageUrl = car.car_images;
+          if (Array.isArray(car.car_images) && car.car_images.length > 0) {
+            imageUrl = car.car_images[0];
+          }
+
+          if (imageUrl && imageUrl.startsWith('https://')) {
+            return {
+              ...car,
+              imageUrl: imageUrl
+            };
+          }
+          
+          if (imageUrl) {
+            const { data: urlData } = supabase
+              .storage
+              .from('car-images')
+              .getPublicUrl(imageUrl);
+            
+            return { 
+              ...car, 
+              imageUrl: urlData?.publicUrl 
+            };
+          }
+          
+          return car;
+        });
+
+        setCars(processedCars || []);
       } catch (error) {
         console.error("Error fetching cars:", error.message);
-        setCars([]); // fallback to demoCars on error
+        setCars([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCars();
+    // Add a small delay to prevent too many requests while typing
+    const timeoutId = setTimeout(fetchCars, 300);
+    return () => clearTimeout(timeoutId);
+
   }, [searchTerm, filters]);
+
+  const handleFilterChange = (e, field) => {
+    const value = e.target.value;
+    
+    // Validate price inputs to only allow numbers
+    if ((field === 'minPrice' || field === 'maxPrice') && value !== "") {
+      if (!/^\d*$/.test(value)) return;
+    }
+    
+    setFilters(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
   return (
     <div
@@ -95,51 +130,49 @@ const Cars = () => {
           <input
             type="text"
             placeholder={t("cars.searchPlaceholder")}
-            className="p-2 border rounded"
+            className="p-2 border rounded focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <input
-            type="number"
+            type="text"
             placeholder={t("cars.minPrice")}
-            className="p-2 border rounded"
+            className="p-2 border rounded focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
             value={filters.minPrice}
-            onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
+            onChange={(e) => handleFilterChange(e, 'minPrice')}
           />
           <input
-            type="number"
+            type="text"
             placeholder={t("cars.maxPrice")}
-            className="p-2 border rounded"
+            className="p-2 border rounded focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
             value={filters.maxPrice}
-            onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
+            onChange={(e) => handleFilterChange(e, 'maxPrice')}
           />
           <input
             type="text"
             placeholder={t("cars.location")}
-            className="p-2 border rounded"
+            className="p-2 border rounded focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
             value={filters.location}
-            onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+            onChange={(e) => handleFilterChange(e, 'location')}
           />
         </div>
       </div>
 
+      {/* Cars Grid */}
       {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-        </div>
+        <div className="text-center py-8">{t("loading")}...</div>
       ) : (
-        <>
-          {cars.length === 0 && (
-            <div className="text-center text-sm text-gray-500 mb-4 italic">
-              {t("cars.showingDemoCars")}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {cars.length > 0 ? (
+            cars.map((car) => (
+              <CarCard key={car.id} car={car} />
+            ))
+          ) : (
+            <div className="col-span-3 text-center py-8">
+              {t("cars.noCarsFound")}
             </div>
           )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {(cars.length > 0 ? cars : demoCars).map((car) => (
-              <CarCard key={car.id} car={car} />
-            ))}
-          </div>
-        </>
+        </div>
       )}
     </div>
   );

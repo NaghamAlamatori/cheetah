@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import supabase from "../utils/api"; // ✅ Correct import
-
+import { supabase } from '../utils/supabase';
 const Reviews = ({ carId }) => {
   const [reviews, setReviews] = useState([]);
 
