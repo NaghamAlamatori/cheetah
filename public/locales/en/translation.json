@@ -75,12 +75,16 @@
     "submitSuccess": "Ad submitted successfully!",
     "submitError": "Failed to submit ad. Please try again later.",
     "draft": "Draft",
-    "publish": "Publish"
+    "publish": "Publish",
+    "validFrom": "Valid from",
+    "validUntil": "Valid until",
+    "learnMore": "Learn More"
   },
   "common": {
     "actions": "Actions",
     "delete": "Delete",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "submitting": "Submitting..."
   },
   "chat": "Chat",
   "login": "Login",
@@ -98,7 +102,8 @@
   "pleaseLogin": "Please login to view your profile",
   "footer": {
     "tagline": "Your trusted platform for buying and selling cars",
-    "rights": "All rights reserved"
+    "rights": "All rights reserved",
+    "copyright": " 2025 Cheetah."
   },
   "about": {
     "title": "About Us",
@@ -174,13 +179,16 @@
     "updateStatus": "Failed to update complaint status. Please try again later.",
     "messageTooLong": "Your message is too long. Please keep it under 500 characters.",
     "unauthorized": "Unable to submit complaint. Please try again later.",
-    "fetchFailed": "Error fetching data. Please try again.",
-    "updateFailed": "Error updating data. Please try again.",
-    "deleteFailed": "Error deleting data. Please try again.",
-    "notAuthenticated": "Please login to continue"
+    "fetchFailed": "Failed to fetch data",
+    "updateFailed": "Failed to update data",
+    "deleteFailed": "Failed to delete data",
+    "invalidDates": "End date must be after start date",
+    "pastStartDate": "Start date cannot be in the past",
+    "invalidEndDate": "End date must be after start date",
+    "notAuthenticated": "You must be logged in to perform this action"
   },
   "complaints": {
-    "title": "Submit a Complaint",
+    "title": "Complaints",
     "publicTitle": "Public Complaints",
     "name": "Your Name",
     "phone": "Phone Number",
@@ -224,7 +232,6 @@
   },
   "dashboard": "Dashboard",
   "users": "Users",
-  "ads": "Ads",
   "settings": "Settings",
   "manage_users": "Manage Users",
   "manage_reviews": "Manage Reviews",
@@ -243,5 +250,16 @@
   "site_name": "Site Name",
   "admin_panel": "Admin Panel",
   "layout": "Layout",
-  "browseMoreCars": "Browse More Cars"
+  "browseMoreCars": "Browse More Cars",
+  "review": {
+    "title": "Reviews",
+    "writeReview": "Write a Review",
+    "name": "Your Name",
+    "rating": "Rating",
+    "content": "Your Review",
+    "submit": "Submit Review",
+    "submitSuccess": "Thank you for your review!",
+    "submitError": "Error submitting review. Please try again.",
+    "noReviews": "No reviews yet. Be the first to review!"
+  }
 }

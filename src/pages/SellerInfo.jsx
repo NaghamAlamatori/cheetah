@@ -19,40 +19,31 @@ function SellerInfo() {
         setLoading(true);
         setError(null);
         
-        // First get the car details to get the user_id
+        // First get the car details
         const { data: carData, error: carError } = await supabase
           .from('cars')
           .select('*')
           .eq('id', carId)
-          .limit(1);
+          .single();
 
         if (carError) throw carError;
-        if (!carData || carData.length === 0) {
+        if (!carData) {
           throw new Error('Car not found');
         }
         
-        console.log('Found car:', carData[0]);  // Debug log
-        setCar(carData[0]);
+        setCar(carData);
 
         // Then get the user details
-        const { data: userData, error: userError } = await supabase
-          .from('users')
-          .select(`
-            *,
-            auth_user:id(
-              email
-            )
-          `)
-          .eq('id', carData[0].user_id)
-          .limit(1);
+        if (carData.user_id) {
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', carData.user_id)
+            .single();
 
-        console.log('User query result:', { userData, userError });  // Debug log
-        
-        if (userError) throw userError;
-        if (!userData || userData.length === 0) {
-          throw new Error(`Seller not found for user_id: ${carData[0].user_id}`);
+          if (userError) throw userError;
+          setSeller(userData);
         }
-        setSeller(userData[0]);
         
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -99,97 +90,69 @@ function SellerInfo() {
 
         <div className="bg-white dark:bg-dark shadow-lg rounded-lg overflow-hidden">
           <div className="p-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
               {t('sellerInfo.title')}
             </h1>
-            
-            {car && (
-              <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
-                  {t('sellerInfo.carDetails')}
-                </h2>
-                <p className="text-gray-600 dark:text-gray-300">
-                  {car.brand} {car.model} ({car.year})
-                </p>
-                <p className="text-orange-500 font-medium">${car.price}</p>
+
+            {seller && (
+              <div className="space-y-4">
+                <div className="flex items-center">
+                  <FaUser className="text-orange-500 mr-3" />
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('sellerInfo.name')}</p>
+                    <p className="text-gray-800 dark:text-white">{seller.name}</p>
+                  </div>
+                </div>
+
+                {seller.mobile_no && (
+                  <div className="flex items-center">
+                    <FaPhone className="text-orange-500 mr-3" />
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t('sellerInfo.phone')}</p>
+                      <p className="text-gray-800 dark:text-white">{seller.mobile_no}</p>
+                    </div>
+                  </div>
+                )}
+
+                {(seller.city || seller.country) && (
+                  <div className="flex items-center">
+                    <FaMapMarkerAlt className="text-orange-500 mr-3" />
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t('sellerInfo.location')}</p>
+                      <p className="text-gray-800 dark:text-white">
+                        {[seller.city, seller.country].filter(Boolean).join(', ')}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-full text-orange-500 dark:text-orange-300 mr-4">
-                  <FaUser size={20} />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {t('sellerInfo.sellerName')}
-                  </p>
-                  <p className="font-medium text-gray-900 dark:text-white">
-                    {seller?.name || t('sellerInfo.notSpecified')}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center">
-                <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-500 dark:text-blue-300 mr-4">
-                  <FaPhone size={20} />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {t('carDetails.phoneNumber')}
-                  </p>
-                  <a 
-                    href={`tel:${seller?.mobile_no}`}
-                    className="font-medium text-blue-600 dark:text-blue-400 hover:underline"
-                  >
-                    {seller?.mobile_no || t('sellerInfo.notSpecified')}
-                  </a>
+            {car && (
+              <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+                  {t('sellerInfo.carDetails')}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('car.brand')}</p>
+                    <p className="text-gray-800 dark:text-white">{car.brand}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('car.model')}</p>
+                    <p className="text-gray-800 dark:text-white">{car.model}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('car.year')}</p>
+                    <p className="text-gray-800 dark:text-white">{car.year}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('car.price')}</p>
+                    <p className="text-gray-800 dark:text-white">${car.price?.toLocaleString()}</p>
+                  </div>
                 </div>
               </div>
-
-              <div className="flex items-center">
-                <div className="p-3 bg-green-100 dark:bg-green-900 rounded-full text-green-500 dark:text-green-300 mr-4">
-                  <FaEnvelope size={20} />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {t('sellerInfo.email')}
-                  </p>
-                  <a 
-                    href={`mailto:${seller?.email}`}
-                    className="font-medium text-green-600 dark:text-green-400 hover:underline"
-                  >
-                    {seller?.email || t('sellerInfo.notSpecified')}
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex items-center">
-                <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-full text-purple-500 dark:text-purple-300 mr-4">
-                  <FaMapMarkerAlt size={20} />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {t('sellerInfo.location')}
-                  </p>
-                  <p className="font-medium text-gray-900 dark:text-white">
-                    {seller?.city || t('sellerInfo.notSpecified')}
-                    {seller?.country ? `, ${seller.country}` : ''}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-              <h3 className="text-blue-800 dark:text-blue-200 font-medium mb-2">
-                {t('carDetails.safetyTips.title')}
-              </h3>
-              <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1 list-disc pl-5">
-                {t('carDetails.safetyTips.tips', { returnObjects: true }).map((tip, index) => (
-                  <li key={index}>{tip}</li>
-                ))}
-              </ul>
-            </div>
+            )}
           </div>
         </div>
       </div>

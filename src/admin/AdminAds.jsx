@@ -174,7 +174,7 @@ const AdminAds = () => {
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm font-medium space-x-2">
-                  {ad.status !== 'active' && (
+                  {(ad.status === 'inactive' || ad.status === 'pending') && (
                     <button
                       onClick={() => updateAdStatus(ad.id, 'active')}
                       className="text-green-600 hover:text-green-900"
@@ -183,7 +183,7 @@ const AdminAds = () => {
                       <FaCheck />
                     </button>
                   )}
-                  {ad.status !== 'inactive' && (
+                  {ad.status === 'active' && (
                     <button
                       onClick={() => updateAdStatus(ad.id, 'inactive')}
                       className="text-gray-600 hover:text-gray-900"

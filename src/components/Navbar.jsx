@@ -125,18 +125,16 @@ function Navbar() {
               <NavLink to="/" icon={<FaHome />} text={t("home")} />
               <NavLink to="/cars" icon={<FaCar />} text={t("cars.title")} />
               <NavLink to="/ads" icon={<FaPlusCircle />} text={t("ads.title")} />
-              <NavLink to="/contacts" icon={<FaAddressBook />} text={t("about.title")} />
+              <NavLink to="/about" icon={<FaAddressBook />} text={t("about.title")} />
               {user && <NavLink to="/cars/add" icon={<FaPlusCircle />} text={t("addCar.title")} />}
               <NavLink to="/complaints" icon={<AiOutlineIssuesClose />} text={t("complaints.title")} />
 
               {!user ? (
-                <button
-                  onClick={() => navigate("/login")}
-                  className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-orange-600 text-white hover:bg-orange-700 transition-colors"
-                >
-                  <CiLogin className="h-5 w-5" />
-                  <span>{t("login")}</span>
-                </button>
+                <NavLink 
+                  to="/login" 
+                  icon={<CiLogin className="h-5 w-5" />} 
+                  text={t("login")} 
+                />
               ) : (
                 <div className="flex items-center space-x-4">
                   <div className="relative">
@@ -169,7 +167,7 @@ function Navbar() {
               <MobileNavLink to="/" icon={<FaHome />} text={t("home")} onClick={() => setIsOpen(false)} />
               <MobileNavLink to="/cars" icon={<FaCar />} text={t("cars.title")} onClick={() => setIsOpen(false)} />
               <MobileNavLink to="/ads" icon={<FaPlusCircle />} text={t("ads.title")} onClick={() => setIsOpen(false)} />
-              <MobileNavLink to="/contacts" icon={<FaAddressBook />} text={t("about.title")} onClick={() => setIsOpen(false)} />
+              <MobileNavLink to="/about" icon={<FaAddressBook />} text={t("about.title")} onClick={() => setIsOpen(false)} />
               {user && <MobileNavLink to="/cars/add" icon={<FaPlusCircle />} text={t("addCar.title")} onClick={() => setIsOpen(false)} />}
               <MobileNavLink to="/complaints" icon={<AiOutlineIssuesClose />} text={t("complaints.title")} onClick={() => setIsOpen(false)} />
 

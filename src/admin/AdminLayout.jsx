@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
-import { MdDashboard, MdPeopleAlt, MdDirectionsCar, MdRateReview, MdSettings, MdReport, MdMenu } from "react-icons/md";
+import { MdDashboard, MdPeopleAlt, MdDirectionsCar, MdRateReview, MdSettings, MdReport, MdMenu, MdAnnouncement } from "react-icons/md";
 import { useAuth } from "../context/AuthContext";
 
 function AdminSidebar({ isOpen, toggleSidebar }) {
@@ -40,7 +40,7 @@ function AdminSidebar({ isOpen, toggleSidebar }) {
           <MdReport className="mr-2" /> {isOpen && "Complaints"}
         </Link>
         <Link to="/admin/ads" className={linkClasses("/admin/ads")}>
-          <MdSettings className="mr-2" /> {isOpen && "Ads"}
+          <MdAnnouncement className="mr-2" /> {isOpen && "Ads"}
         </Link>
         <Link to="/admin/settings" className={linkClasses("/admin/settings")}>
           <MdSettings className="mr-2" /> {isOpen && "Settings"}

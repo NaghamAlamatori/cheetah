@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../utils/supabase';
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 
 const SubmitAd = () => {
   const { t } = useTranslation();
@@ -47,6 +47,42 @@ const SubmitAd = () => {
         throw new Error(t('errors.requiredFields'));
       }
 
+      // Validate dates
+      const startDate = new Date(formData.start_date);
+      const endDate = new Date(formData.end_date);
+      const today = new Date();
+      
+      // Normalize dates to compare only the date part in local timezone
+      const normalizeDate = (date) => {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        const day = date.getDate();
+        // Create date at noon in local timezone to avoid DST issues
+        return new Date(year, month, day, 12, 0, 0);
+      };
+
+      const normalizedStartDate = normalizeDate(startDate);
+      const normalizedEndDate = normalizeDate(endDate);
+      const normalizedToday = normalizeDate(today);
+
+      console.log('Date Validation:', {
+        startDate: normalizedStartDate.toLocaleString(),
+        endDate: normalizedEndDate.toLocaleString(),
+        today: normalizedToday.toLocaleString(),
+        rawStartDate: formData.start_date,
+        rawEndDate: formData.end_date,
+        isStartBeforeToday: normalizedStartDate < normalizedToday,
+        isEndAfterStart: normalizedEndDate > normalizedStartDate
+      });
+
+      if (normalizedStartDate < normalizedToday) {
+        throw new Error(t('errors.pastStartDate'));
+      }
+
+      if (normalizedEndDate <= normalizedStartDate) {
+        throw new Error(t('errors.invalidEndDate'));
+      }
+
       // Get current user
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError) throw userError;
@@ -70,31 +106,49 @@ const SubmitAd = () => {
         imageUrl = urlData?.publicUrl;
       }
 
-      const { error: insertError } = await supabase
+      const { data: insertData, error: insertError } = await supabase
         .from('ads')
-        .insert([
-          {
-            user_id: user.id,
-            title: formData.title,
-            detail: formData.detail,
-            image: imageUrl,
-            link: formData.link || null,
-            start_date: formData.start_date,
-            end_date: formData.end_date,
-            status: 'pending'
-          }
-        ]);
+        .insert({
+          user_id: user.id,
+          title: formData.title,
+          detail: formData.detail,
+          image: imageUrl,
+          link: formData.link || null,
+          start_date: new Date(formData.start_date).toISOString().split('T')[0],
+          end_date: new Date(formData.end_date).toISOString().split('T')[0],
+          status: 'active'
+        })
+        .select('*')
+        .single();
 
       if (insertError) {
-        throw insertError;
+        console.error('Insert Error:', {
+          code: insertError.code,
+          message: insertError.message,
+          details: insertError.details,
+          hint: insertError.hint
+        });
+        throw new Error(insertError.message || t('ads.submitError'));
+      }
+
+      if (!insertData) {
+        console.error('No data returned from insert');
+        throw new Error(t('ads.submitError'));
       }
 
       toast.success(t('ads.submitSuccess'));
       navigate('/ads');
     } catch (error) {
-      console.error('Error submitting ad:', error);
-      setError(error.message || t('ads.submitError'));
-      toast.error(t('ads.submitError'));
+      console.error('Error submitting ad:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        code: error.code,
+        details: error.details
+      });
+      const errorMessage = error.message || t('ads.submitError');
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

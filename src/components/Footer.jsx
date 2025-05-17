@@ -75,7 +75,7 @@ function Footer() {
           </div>
         </div>
         <div className="mt-6 pt-6 border-t border-gray-700 text-center text-gray-400">
-        {t('footer.copyright')} {new Date().getFullYear()} Cheetah. {t('footer.rights')}
+         {new Date().getFullYear()} Cheetah. {t('footer.rights')}
         </div>
       </div>
     </footer>

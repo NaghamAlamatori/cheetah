@@ -15,7 +15,9 @@ import AddCar from "./pages/AddCar";
 import CarDetails from "./pages/CarDetails";
 import SellerInfo from "./pages/SellerInfo";
 import About from "./pages/About";
+import Contact from "./pages/Contact";
 import SubmitAd from "./pages/SubmitAd";
+import Ads from "./pages/Ads";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { Toaster } from "react-hot-toast";
@@ -54,11 +56,13 @@ function App() {
               <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
               <Route path="/complaints" element={<Complaints />} />
               <Route path="/reviews" element={<Reviews />} />
+              <Route path="/ads" element={<Ads />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
               <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
               <Route path="/submit-ad" element={<ProtectedRoute><SubmitAd /></ProtectedRoute>} />
               
               {/* Admin routing */}

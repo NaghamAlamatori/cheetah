@@ -2,44 +2,47 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from '../utils/supabase';
 import { FaMapMarkerAlt, FaCalendarAlt, FaUser, FaStar, FaChevronLeft } from "react-icons/fa";
+import { useTranslation } from 'react-i18next';
 
 function CarDetails() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [car, setCar] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
+  const [reviews, setReviews] = useState([]);
   const [reviewForm, setReviewForm] = useState({
-    name: '',
-    phone: '',
-    comment: ''
+    user_name: '',
+    content: '',
+    rate: 5
   });
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchCarDetails = async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase
+        const { data: carData, error: carError } = await supabase
           .from("cars")
           .select("*")
           .eq("id", id)
           .maybeSingle();
 
-        if (error) throw error;
+        if (carError) throw carError;
 
         // If we have the car data, fetch the seller info separately
-        if (data && data.user_id) {
+        if (carData?.user_id) {
           const { data: userData, error: userError } = await supabase
             .from("profiles")
             .select("id, full_name, email, phone")
-            .eq("id", data.user_id)
+            .eq("id", carData.user_id)
             .single();
 
           if (!userError && userData) {
-            // Combine car and user data
             setCar({
-              ...data,
+              ...carData,
               user: {
                 id: userData.id,
                 name: userData.full_name,
@@ -49,10 +52,10 @@ function CarDetails() {
             });
           } else {
             console.error("Failed to fetch user:", userError?.message);
-            setCar(data); // Still show car data even if user fetch fails
+            setCar(carData);
           }
         } else {
-          setCar(data);
+          setCar(carData);
         }
       } catch (err) {
         console.error("Failed to fetch car:", err.message);
@@ -62,40 +65,66 @@ function CarDetails() {
       }
     };
 
+    const fetchReviews = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("reviews")
+          .select("*")
+          .order('id', { ascending: false });
+
+        if (error) throw error;
+        setReviews(data || []);
+      } catch (err) {
+        console.error("Failed to fetch reviews:", err.message);
+      }
+    };
+
     fetchCarDetails();
+    fetchReviews();
   }, [id]);
 
   const handleReviewInputChange = (e) => {
-    setReviewForm({
-      ...reviewForm,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setReviewForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    
     try {
       const { data, error } = await supabase
-        .from("ad_applications")
+        .from("reviews")
         .insert([{
-          ad_id: id,
-          name: reviewForm.name,
-          phone: reviewForm.phone,
-          message: reviewForm.comment,
-          status: 'pending'
-        }]);
+          user_name: reviewForm.user_name,
+          content: reviewForm.content,
+          rate: parseInt(reviewForm.rate, 10)
+        }])
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Add the new review to the reviews list
+      setReviews(prev => [data, ...prev]);
       
-      alert('Your review has been submitted!');
+      // Reset form
       setReviewForm({
-        name: '',
-        phone: '',
-        comment: ''
+        user_name: '',
+        content: '',
+        rate: 5
       });
+      
+      alert(t('review.submitSuccess'));
     } catch (err) {
       console.error("Failed to submit review:", err.message);
-      alert('Failed to submit. Please try again.');
+      alert(t('review.submitError'));
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -218,8 +247,8 @@ function CarDetails() {
                 <input
                   type="text"
                   id="name"
-                  name="name"
-                  value={reviewForm.name}
+                  name="user_name"
+                  value={reviewForm.user_name}
                   onChange={handleReviewInputChange}
                   placeholder="Enter your name"
                   className="mt-1 block w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
@@ -228,25 +257,25 @@ function CarDetails() {
               </div>
               
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone Number</label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={reviewForm.phone}
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Rating</label>
+                <select
+                  name="rate"
+                  value={reviewForm.rate}
                   onChange={handleReviewInputChange}
-                  placeholder="Enter your phone number"
                   className="mt-1 block w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                  required
-                />
+                >
+                  {[5, 4, 3, 2, 1].map(num => (
+                    <option key={num} value={num}>{num} ⭐</option>
+                  ))}
+                </select>
               </div>
 
               <div>
                 <label htmlFor="comment" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Your Message</label>
                 <textarea
                   id="comment"
-                  name="comment"
-                  value={reviewForm.comment}
+                  name="content"
+                  value={reviewForm.content}
                   onChange={handleReviewInputChange}
                   rows="4"
                   placeholder="Write your message here"
@@ -257,11 +286,43 @@ function CarDetails() {
 
               <button
                 type="submit"
+                disabled={submitting}
                 className="w-full bg-orange-500 hover:bg-orange-700 text-white py-3 px-6 rounded-md font-medium transition-colors"
               >
-                Submit Review
+                {submitting ? t('common.submitting') : t('review.submit')}
               </button>
             </form>
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold mb-6">{t('review.title')}</h2>
+          
+          {/* Reviews List */}
+          <div className="space-y-6">
+            {reviews.length > 0 ? (
+              reviews.map((review, index) => (
+                <div key={index} className="bg-white rounded-lg shadow-md p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h4 className="font-semibold">{review.user_name}</h4>
+                      <div className="flex items-center mt-1">
+                        {Array.from({ length: review.rate }).map((_, i) => (
+                          <FaStar key={i} className="text-yellow-400" />
+                        ))}
+                      </div>
+                    </div>
+                    <span className="text-gray-500 text-sm">
+                      {new Date(review.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p className="text-gray-700">{review.content}</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 text-center">{t('review.noReviews')}</p>
+            )}
           </div>
         </div>
       </div>
