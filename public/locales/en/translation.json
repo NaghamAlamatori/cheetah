@@ -78,7 +78,8 @@
     "publish": "Publish",
     "validFrom": "Valid from",
     "validUntil": "Valid until",
-    "learnMore": "Learn More"
+    "learnMore": "Learn More",
+    "viewAll": "View All Ads"
   },
   "common": {
     "actions": "Actions",

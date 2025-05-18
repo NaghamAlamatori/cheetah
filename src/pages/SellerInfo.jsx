@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../utils/supabase';
-import { FaArrowLeft, FaPhone, FaEnvelope, FaUser, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaArrowLeft, FaPhone, FaUser, FaMapMarkerAlt } from 'react-icons/fa';
 
 function SellerInfo() {
   const { t } = useTranslation();
@@ -33,11 +33,11 @@ function SellerInfo() {
         
         setCar(carData);
 
-        // Then get the user details
+        // Then get the user details using user_id from car
         if (carData.user_id) {
           const { data: userData, error: userError } = await supabase
             .from('users')
-            .select('*')
+            .select('id, name, mobile_no, city, country')
             .eq('id', carData.user_id)
             .single();
 
@@ -100,7 +100,7 @@ function SellerInfo() {
                   <FaUser className="text-orange-500 mr-3" />
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">{t('sellerInfo.name')}</p>
-                    <p className="text-gray-800 dark:text-white">{seller.name}</p>
+                    <p className="text-gray-800 dark:text-white">{seller.name || t('sellerInfo.notSpecified')}</p>
                   </div>
                 </div>
 
