@@ -26,14 +26,18 @@ function SellerInfo() {
           .eq('id', carId)
           .single();
 
-        if (carError) throw carError;
+        if (carError) {
+          console.error('Car fetch error:', carError);
+          throw carError;
+        }
+        
         if (!carData) {
           throw new Error('Car not found');
         }
-        
+
         setCar(carData);
 
-        // Then get the user details using user_id from car
+        // Then fetch the user data from users table
         if (carData.user_id) {
           const { data: userData, error: userError } = await supabase
             .from('users')
@@ -41,13 +45,17 @@ function SellerInfo() {
             .eq('id', carData.user_id)
             .single();
 
-          if (userError) throw userError;
+          if (userError) {
+            console.error('User fetch error:', userError);
+            throw userError;
+          }
+
           setSeller(userData);
         }
         
       } catch (err) {
         console.error('Error fetching data:', err);
-        setError(err.message || t('errors.fetchSellerInfo') || 'Failed to load seller information');
+        setError(err.message || t('errors.fetchSellerInfo'));
       } finally {
         setLoading(false);
       }
