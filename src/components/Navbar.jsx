@@ -197,7 +197,7 @@ function Navbar() {
     </>
   );
 }
-
+  
 const NavLink = ({ to, icon, text }) => (
   <Link to={to} className="flex items-center text-gray-700 dark:text-gray-200 hover:text-orange-500">
     <span className="mr-2">{icon}</span> {text}

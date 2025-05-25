@@ -28,26 +28,24 @@ function CarDetails() {
           .from("cars")
           .select("*")
           .eq("id", id)
-          .maybeSingle();
-
+                
         if (carError) throw carError;
 
         // If we have the car data, fetch the seller info separately
         if (carData?.user_id) {
           const { data: userData, error: userError } = await supabase
-            .from("profiles")
-            .select("id, full_name, email, phone")
+            .from("users")
+            .select("id, name, mobile_no, city, country")
             .eq("id", carData.user_id)
-            .single();
 
           if (!userError && userData) {
             setCar({
               ...carData,
               user: {
                 id: userData.id,
-                name: userData.full_name,
+                name: userData.name,
                 email: userData.email,
-                mobile_no: userData.phone
+                mobile_no: userData.mobile_no
               }
             });
           } else {
@@ -105,7 +103,6 @@ function CarDetails() {
           rate: parseInt(reviewForm.rate, 10)
         }])
         .select()
-        .single();
 
       if (error) throw error;
 

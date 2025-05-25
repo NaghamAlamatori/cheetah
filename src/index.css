@@ -2,6 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Input styles */
+input {
+  @apply w-full p-3 border border-gray-300 rounded-md text-gray-800 bg-white focus:ring-2 focus:ring-orange-500 focus:border-transparent;
+}
+
+input:focus {
+  outline: none;
+  @apply ring-2 ring-orange-500;
+}
+
+input::placeholder {
+  @apply text-gray-400;
+}
+
+/* Ensure inputs are visible in dark mode */
+.dark input {
+  @apply bg-gray-800 text-white;
+}
+
+.dark input::placeholder {
+  @apply text-gray-400;
+}
+
+/* Make sure file inputs are visible */
+input[type="file"] {
+  @apply cursor-pointer;
+}
+
+/* Make sure password inputs are visible */
+input[type="password"] {
+  @apply pr-10;
+}
+
 /* Slick carousel custom styles */
 .slick-prev,
 .slick-next {

@@ -8,58 +8,56 @@ function SellerInfo() {
   const { t } = useTranslation();
   const { carId } = useParams();
   const navigate = useNavigate();
-  const [seller, setSeller] = useState(null);
-  const [car, setCar] = useState(null);
+  const [seller, setSeller] = useState({});
+  const [car, setCar] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // First get the car details
-        const { data: carData, error: carError } = await supabase
-          .from('cars')
-          .select('*')
-          .eq('id', carId)
-          .single();
+const fetchData = async () => {
+  try {
+    setLoading(true);
+    setError(null);
+    
+    // First get the car details
+    const { data: carData, error: carError } = await supabase
+      .from('cars')
+      .select('*')
+      .eq('id', carId)
+      .maybeSingle(); 
 
-        if (carError) {
-          console.error('Car fetch error:', carError);
-          throw carError;
-        }
-        
-        if (!carData) {
-          throw new Error('Car not found');
-        }
+    if (carError) throw carError;
+    if (!carData) throw new Error('Car not found');
 
-        setCar(carData);
+    setCar(carData);
 
-        // Then fetch the user data from users table
-        if (carData.user_id) {
-          const { data: userData, error: userError } = await supabase
-            .from('users')
-            .select('id, name, mobile_no, city, country')
-            .eq('id', carData.user_id)
-            .single();
+    // Then fetch the user data from users table
+    if (carData.user_id) {
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('id, name, mobile_no, city, country')
+        .eq('id', carData.user_id)
+        .maybeSingle(); 
 
-          if (userError) {
-            console.error('User fetch error:', userError);
-            throw userError;
-          }
-
-          setSeller(userData);
-        }
-        
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        setError(err.message || t('errors.fetchSellerInfo'));
-      } finally {
-        setLoading(false);
+      if (userError) {
+        console.error('User fetch error details:', {
+          message: userError.message,
+          details: userError.details,
+          hint: userError.hint,
+          code: userError.code
+        });
+        throw userError;
       }
-    };
+
+      setSeller(userData || {});
+    }
+  } catch (err) {
+    console.error('Full error object:', err);
+    setError(err.message || t('errors.fetchSellerInfo'));
+  } finally {
+    setLoading(false);
+  }
+};
 
     if (carId) {
       fetchData();
@@ -102,65 +100,61 @@ function SellerInfo() {
               {t('sellerInfo.title')}
             </h1>
 
-            {seller && (
-              <div className="space-y-4">
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <FaUser className="text-orange-500 mr-3" />
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('sellerInfo.name')}</p>
+                  <p className="text-gray-800 dark:text-white">{seller?.name || t('sellerInfo.notSpecified')}</p>
+                </div>
+              </div>
+
+              {seller?.mobile_no && (
                 <div className="flex items-center">
-                  <FaUser className="text-orange-500 mr-3" />
+                  <FaPhone className="text-orange-500 mr-3" />
                   <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('sellerInfo.name')}</p>
-                    <p className="text-gray-800 dark:text-white">{seller.name || t('sellerInfo.notSpecified')}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('sellerInfo.phone')}</p>
+                    <p className="text-gray-800 dark:text-white">{seller.mobile_no}</p>
                   </div>
                 </div>
+              )}
 
-                {seller.mobile_no && (
-                  <div className="flex items-center">
-                    <FaPhone className="text-orange-500 mr-3" />
-                    <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{t('sellerInfo.phone')}</p>
-                      <p className="text-gray-800 dark:text-white">{seller.mobile_no}</p>
-                    </div>
-                  </div>
-                )}
-
-                {(seller.city || seller.country) && (
-                  <div className="flex items-center">
-                    <FaMapMarkerAlt className="text-orange-500 mr-3" />
-                    <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{t('sellerInfo.location')}</p>
-                      <p className="text-gray-800 dark:text-white">
-                        {[seller.city, seller.country].filter(Boolean).join(', ')}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {car && (
-              <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
-                  {t('sellerInfo.carDetails')}
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {(seller?.city || seller?.country) && (
+                <div className="flex items-center">
+                  <FaMapMarkerAlt className="text-orange-500 mr-3" />
                   <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('car.brand')}</p>
-                    <p className="text-gray-800 dark:text-white">{car.brand}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('car.model')}</p>
-                    <p className="text-gray-800 dark:text-white">{car.model}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('car.year')}</p>
-                    <p className="text-gray-800 dark:text-white">{car.year}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('car.price')}</p>
-                    <p className="text-gray-800 dark:text-white">${car.price?.toLocaleString()}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('sellerInfo.location')}</p>
+                    <p className="text-gray-800 dark:text-white">
+                      {[seller?.city, seller?.country].filter(Boolean).join(', ')}
+                    </p>
                   </div>
                 </div>
+              )}
+            </div>
+
+            <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+                {t('sellerInfo.carDetails')}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('car.brand')}</p>
+                  <p className="text-gray-800 dark:text-white">{car?.brand || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('car.model')}</p>
+                  <p className="text-gray-800 dark:text-white">{car?.model || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('car.year')}</p>
+                  <p className="text-gray-800 dark:text-white">{car?.year || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('car.price')}</p>
+                  <p className="text-gray-800 dark:text-white">${car?.price?.toLocaleString() || 'N/A'}</p>
+                </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>

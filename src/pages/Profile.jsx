@@ -131,7 +131,7 @@ const Profile = () => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">{t('myCars')}</h2>
           <Link
-            to="/add-car"
+            to="/cars/add" icon={<FaPlusCircle />} text={t("addCar.title")}
             className="bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600 flex items-center"
           >
             <FaPlus className="mr-2" />
