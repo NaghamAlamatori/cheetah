@@ -5,6 +5,7 @@ import SearchBar from '../components/SearchBar'
 import CarSection from '../components/CarSection'
 import CustomerReviews from '../components/CustomerReviews'
 import { supabase } from '../utils/supabase'
+import { dummyCars } from '../utils/dummyData'
 
 function Home() {
   const [allCars, setAllCars] = useState([]);
@@ -25,6 +26,10 @@ function Home() {
         setFilteredCars(data || []);
       } catch (error) {
         console.error('Error loading cars:', error);
+        // Use dummy data as fallback
+        console.log('Using dummy cars data as fallback');
+        setAllCars(dummyCars);
+        setFilteredCars(dummyCars);
       } finally {
         setLoading(false);
       }

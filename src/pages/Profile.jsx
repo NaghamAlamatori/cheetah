@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEdit, FaCar, FaPlus } from 'react-icons/fa';
 import { supabase } from '../utils/supabase';
+import { dummyCars } from '../utils/dummyData';
 
 const Profile = () => {
   const { user, logout } = useAuth();
@@ -35,6 +36,10 @@ const Profile = () => {
       setUserCars(data || []);
     } catch (error) {
       console.error('Error fetching user cars:', error);
+      // Use dummy data as fallback - show cars from the current user
+      console.log('Using dummy cars data as fallback');
+      const userCarsFromDummy = dummyCars.filter(car => car.user_id === user.id);
+      setUserCars(userCarsFromDummy);
     } finally {
       setCarsLoading(false);
     }

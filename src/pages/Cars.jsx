@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { supabase } from '../utils/supabase';
 import CarCard from "../components/CarCard";
 import { useTranslation } from "react-i18next";
+import { dummyCars } from '../utils/dummyData';
 
 const Cars = () => {
   const [cars, setCars] = useState([]);
@@ -60,7 +61,7 @@ const Cars = () => {
         if (error) throw error;
 
         // Process cars to get image URLs
-        const processedCars = data.map(car => {
+        const processedCars = (data || []).map(car => {
           let imageUrl = car.car_images;
           if (Array.isArray(car.car_images) && car.car_images.length > 0) {
             imageUrl = car.car_images[0];
@@ -91,7 +92,13 @@ const Cars = () => {
         setCars(processedCars || []);
       } catch (error) {
         console.error("Error fetching cars:", error.message);
-        setCars([]);
+        // Use dummy data as fallback
+        console.log('Using dummy cars data as fallback');
+        const processedDummyCars = dummyCars.map(car => ({
+          ...car,
+          imageUrl: Array.isArray(car.car_images) && car.car_images.length > 0 ? car.car_images[0] : car.car_images
+        }));
+        setCars(processedDummyCars);
       } finally {
         setLoading(false);
       }

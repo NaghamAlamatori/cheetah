@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from '../utils/supabase';
+import { dummyCars, dummyReviews, dummyUsers } from '../utils/dummyData';
 import { FaMapMarkerAlt, FaCalendarAlt, FaUser, FaStar, FaChevronLeft } from "react-icons/fa";
 import { useTranslation } from 'react-i18next';
 
@@ -57,7 +58,23 @@ function CarDetails() {
         }
       } catch (err) {
         console.error("Failed to fetch car:", err.message);
-        setError("Could not load car details.");
+        // Use dummy data as fallback
+        console.log('Using dummy car details as fallback');
+        const dummyCar = dummyCars.find(c => c.id === id);
+        if (dummyCar) {
+          const carUser = dummyUsers.find(u => u.id === dummyCar.user_id);
+          setCar({
+            ...dummyCar,
+            user: {
+              id: carUser?.id,
+              name: carUser?.first_name + ' ' + carUser?.last_name,
+              email: carUser?.email,
+              mobile_no: carUser?.phone
+            }
+          });
+        } else {
+          setError("Could not load car details.");
+        }
       } finally {
         setLoading(false);
       }
@@ -74,6 +91,9 @@ function CarDetails() {
         setReviews(data || []);
       } catch (err) {
         console.error("Failed to fetch reviews:", err.message);
+        // Use dummy data as fallback
+        console.log('Using dummy reviews as fallback');
+        setReviews(dummyReviews);
       }
     };
 

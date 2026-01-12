@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaUsers, FaCar, FaComment, FaExclamationTriangle } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import { dummyAdminStats } from '../utils/dummyData';
 
 const StatCard = ({ icon, title, value, link, bgColor }) => (
   <Link to={link} className={`block p-6 rounded-lg shadow-md ${bgColor} text-white hover:shadow-lg transition-shadow`}>
@@ -20,32 +21,32 @@ const StatCard = ({ icon, title, value, link, bgColor }) => (
 const AdminDashboard = () => {
   const { t } = useTranslation();
   
-  // Mock data - replace with actual data from your API
+  // Use dummy data for stats
   const stats = [
     {
       title: t('admin.totalUsers'),
-      value: '1,234',
+      value: dummyAdminStats.totalUsers.toString(),
       icon: <FaUsers />,
       link: '/admin/users',
       bgColor: 'bg-blue-500'
     },
     {
       title: t('admin.totalCars'),
-      value: '567',
+      value: dummyAdminStats.totalCars.toString(),
       icon: <FaCar />,
       link: '/admin/cars',
       bgColor: 'bg-green-500'
     },
     {
       title: t('admin.totalReviews'),
-      value: '890',
+      value: dummyAdminStats.totalReviews.toString(),
       icon: <FaComment />,
       link: '/admin/reviews',
       bgColor: 'bg-yellow-500'
     },
     {
       title: t('admin.pendingComplaints'),
-      value: '12',
+      value: dummyAdminStats.totalComplaints.toString(),
       icon: <FaExclamationTriangle />,
       link: '/admin/complaints',
       bgColor: 'bg-red-500'

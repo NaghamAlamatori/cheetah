@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../utils/supabase';
+import { dummyAds } from '../utils/dummyData';
 import { FaPlus } from 'react-icons/fa';
 
 const Ads = () => {
@@ -27,16 +28,20 @@ const Ads = () => {
 
       if (error) {
         console.error('❌ Supabase fetch error:', error);
-        setError(t('ads.fetchError'));
-        setAds([]);
+        // Use dummy data as fallback
+        console.log('Using dummy ads data as fallback');
+        setAds(dummyAds);
+        setError(null);
       } else {
         console.log('✅ Active ads:', data);
-        setAds(data || []);
+        setAds(data || dummyAds);
         setError(null);
       }
     } catch (err) {
       console.error('❗ Unexpected error:', err);
-      setError(t('ads.fetchError'));
+      // Use dummy data as fallback
+      console.log('Using dummy ads data as fallback');
+      setAds(dummyAds);
     } finally {
       setLoading(false);
     }

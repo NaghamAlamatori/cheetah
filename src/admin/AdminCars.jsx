@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
+import { dummyCars, dummyUsers } from '../utils/dummyData';
 import { FaEdit, FaTrash, FaEye, FaPlus, FaCheck, FaTimes } from 'react-icons/fa';
 
 const AdminCars = () => {
@@ -58,6 +59,13 @@ const AdminCars = () => {
       setCars(data || []);
     } catch (err) {
       console.error('Error fetching cars:', err);
+      // Use dummy data as fallback
+      console.log('Using dummy cars data as fallback');
+      const carsWithUsers = dummyCars.map(car => ({
+        ...car,
+        users: dummyUsers.find(u => u.id === car.user_id) || { first_name: 'Unknown' }
+      }));
+      setCars(carsWithUsers);
       setError('Failed to load cars. Please try again.');
     } finally {
       setLoading(false);

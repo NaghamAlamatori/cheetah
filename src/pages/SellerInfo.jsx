@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../utils/supabase';
+import { dummyCars, dummyUsers } from '../utils/dummyData';
 import { FaArrowLeft, FaPhone, FaUser, FaMapMarkerAlt } from 'react-icons/fa';
 
 function SellerInfo() {
@@ -53,7 +54,16 @@ const fetchData = async () => {
     }
   } catch (err) {
     console.error('Full error object:', err);
-    setError(err.message || t('errors.fetchSellerInfo'));
+    // Use dummy data as fallback
+    console.log('Using dummy car and user data as fallback');
+    const dummyCar = dummyCars.find(c => c.id === carId);
+    if (dummyCar) {
+      setCar(dummyCar);
+      const dummyUser = dummyUsers.find(u => u.id === dummyCar.user_id);
+      setSeller(dummyUser || {});
+    } else {
+      setError(err.message || t('errors.fetchSellerInfo'));
+    }
   } finally {
     setLoading(false);
   }

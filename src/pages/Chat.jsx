@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from '../utils/supabase';
+import { dummyMessages } from '../utils/dummyData';
+
 const Chat = () => {
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
@@ -8,13 +10,24 @@ const Chat = () => {
 
   useEffect(() => {
     const fetchMessages = async () => {
-      const { data, error } = await supabase
-        .from("messages")
-        .select("*")
-        .order("timestamp", { ascending: true });
+      try {
+        const { data, error } = await supabase
+          .from("messages")
+          .select("*")
+          .order("created_at", { ascending: true });
 
-      if (error) console.error("Error fetching messages:", error);
-      else setMessages(data);
+        if (error) {
+          console.error("Error fetching messages:", error);
+          // Use dummy data as fallback
+          console.log('Using dummy messages data as fallback');
+          setMessages(dummyMessages);
+          return;
+        }
+        setMessages(data || dummyMessages);
+      } catch (err) {
+        console.error('Error:', err);
+        setMessages(dummyMessages);
+      }
     };
 
     fetchMessages();

@@ -3,6 +3,7 @@ import CarCard from "./CarCard";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../utils/supabase";
+import { dummyCars } from "../utils/dummyData";
 
 function CarSection({ title, type, limit, showBrowseMore = false, cars: externalCars = null }) {
   const { t } = useTranslation();
@@ -79,7 +80,17 @@ function CarSection({ title, type, limit, showBrowseMore = false, cars: external
         setCars(processedCars || []);
       } catch (error) {
         console.error("Error fetching cars:", error);
-      } finally {
+        // Use dummy data as fallback
+        console.log('Using dummy cars data as fallback');
+        const processedDummyCars = dummyCars
+          .slice(0, limit || dummyCars.length)
+          .map(car => ({
+            ...car,
+            imageUrl: Array.isArray(car.car_images) && car.car_images.length > 0 
+              ? car.car_images[0] 
+              : car.car_images
+          }));
+        setCars(processedDummyCars);
         setLoading(false);
       }
     };

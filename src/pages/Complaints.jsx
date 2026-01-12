@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../utils/supabase";
+import { dummyComplaints } from "../utils/dummyData";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from "../context/AuthContext";
@@ -130,7 +131,10 @@ const Complaints = () => {
       setPublicComplaints(data || []);
     } catch (error) {
       console.error('Error fetching complaints:', error);
-      toast.error(t('errors.fetchComplaints'));
+      // Use dummy data as fallback
+      console.log('Using dummy complaints data as fallback');
+      const resolvedComplaints = dummyComplaints.filter(c => c.status === 'resolved');
+      setPublicComplaints(resolvedComplaints);
     } finally {
       setLoadingComplaints(false);
     }
